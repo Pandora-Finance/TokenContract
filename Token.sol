@@ -1,4 +1,4 @@
-pragma solidity ^ 0.5.17;
+pragma solidity ^ 0.6.12;
 
 /*
  * @dev Provides information about the current execution context, including the
@@ -281,7 +281,12 @@ library SafeMath {
  * allowances. See {IERC20-approve}.
  */
 contract ERC20 is Context, IERC20 {
+
     using SafeMath for uint256;
+
+    string public name;
+    string public symbol;
+    uint8 public decimals;
 
     mapping (address => uint256) private _balances;
 
@@ -289,17 +294,23 @@ contract ERC20 is Context, IERC20 {
 
     uint256 private _totalSupply;
 
+    constructor (string memory _name, string memory _symbol, uint8 _decimals) public{
+        name = _name;
+        symbol = _symbol;
+        decimals = _decimals;
+    }
+
     /**
      * @dev See {IERC20-totalSupply}.
      */
-    function totalSupply() public view returns (uint256) {
+    function totalSupply() override public view returns (uint256) {
         return _totalSupply;
     }
 
     /**
      * @dev See {IERC20-balanceOf}.
      */
-    function balanceOf(address account) public view returns (uint256) {
+    function balanceOf(address account) override public view returns (uint256) {
         return _balances[account];
     }
 
@@ -311,7 +322,7 @@ contract ERC20 is Context, IERC20 {
      * - `recipient` cannot be the zero address.
      * - the caller must have a balance of at least `amount`.
      */
-    function transfer(address recipient, uint256 amount) public returns (bool) {
+    function transfer(address recipient, uint256 amount) override public returns (bool) {
         _transfer(_msgSender(), recipient, amount);
         return true;
     }
@@ -319,7 +330,7 @@ contract ERC20 is Context, IERC20 {
     /**
      * @dev See {IERC20-allowance}.
      */
-    function allowance(address owner, address spender) public view returns (uint256) {
+    function allowance(address owner, address spender) override public view returns (uint256) {
         return _allowances[owner][spender];
     }
 
@@ -330,7 +341,7 @@ contract ERC20 is Context, IERC20 {
      *
      * - `spender` cannot be the zero address.
      */
-    function approve(address spender, uint256 amount) public returns (bool) {
+    function approve(address spender, uint256 amount) override public returns (bool) {
         _approve(_msgSender(), spender, amount);
         return true;
     }
@@ -347,7 +358,7 @@ contract ERC20 is Context, IERC20 {
      * - the caller must have allowance for `sender`'s tokens of at least
      * `amount`.
      */
-    function transferFrom(address sender, address recipient, uint256 amount) public returns (bool) {
+    function transferFrom(address sender, address recipient, uint256 amount) override public returns (bool) {
         _transfer(sender, recipient, amount);
         _approve(sender, _msgSender(), _allowances[sender][_msgSender()].sub(amount, "ERC20: transfer amount exceeds allowance"));
         return true;
@@ -455,15 +466,11 @@ contract ERC20 is Context, IERC20 {
 
 contract PandoraToken is ERC20 {
 
-    uint public totalTokensAmount = 100000000;
+    uint constant public totalTokensAmount = 100000000 * (10 ** 18);
 
-    string public name = "PANDORA";
-    string public symbol = "PNDR";
-    uint8 public decimals = 18;
-
-    constructor() public {
+    constructor() ERC20("PANDORA", "PNDR", 18) public {
         // mint totalTokensAmount times 10^decimals for operator
-        _mint(_msgSender(), totalTokensAmount  * (10 ** uint256(decimals)));
+        _mint(_msgSender(), totalTokensAmount);
     }
 
 }
